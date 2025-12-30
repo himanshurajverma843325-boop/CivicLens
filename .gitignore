@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+issues.db
+static/uploads/*
+static/profiles/*

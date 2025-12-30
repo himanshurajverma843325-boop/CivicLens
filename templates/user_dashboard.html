@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Reports | CivicLens AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; margin: 0; padding: 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        
+        /* Reward Wallet Section */
+        .reward-wallet {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 30px;
+            border-radius: 24px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+        }
+        .wallet-info h1 { margin: 0; font-size: 2.5rem; font-weight: 800; }
+        .wallet-info p { margin: 0; opacity: 0.9; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
+        .redeem-btn { 
+            background: rgba(255,255,255,0.2); 
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white; padding: 12px 24px; border-radius: 12px; 
+            font-weight: 800; cursor: pointer; transition: 0.3s;
+            text-decoration: none;
+        }
+        .redeem-btn:hover { background: white; color: #2563eb; }
+
+        /* Report Cards Grid */
+        .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; margin-top: 30px; }
+        .report-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; transition: 0.3s; }
+        .report-card:hover { transform: translateY(-5px); }
+        .report-img { width: 100%; height: 200px; object-fit: cover; }
+        .card-content { padding: 20px; }
+        
+        .status-pill { padding: 6px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+        .status-Pending { background: #fef3c7; color: #d97706; }
+        .status-Resolved { background: #dcfce7; color: #16a34a; }
+        
+        .ai-tag { font-size: 0.7rem; background: #f1f5f9; color: #475569; padding: 5px 10px; border-radius: 8px; font-weight: 700; margin-top: 10px; display: inline-block; }
+        .ai-tag i { color: #2563eb; margin-right: 5px; }
+
+        .btn-main { background: #2563eb; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 700; transition: 0.3s; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="reward-wallet">
+            <div class="wallet-info">
+                <p>Total Civic Rewards Balance</p>
+                <h1>⭐ {{ user_credits }} <small style="font-size: 1rem; font-weight: 400;">Points</small></h1>
+            </div>
+            <a href="#" class="redeem-btn"><i class="fas fa-ticket-alt"></i> Redeem Rewards</a>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 style="font-weight: 800; margin: 0; color: #0f172a;">My Reported Issues</h1>
+                <p style="color: #64748b; margin-top: 5px;">Tracking your contribution to a better city</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="{{ url_for('index') }}" class="btn-main" style="text-decoration: none; background: #0f172a;">+ New Report</a>
+                <a href="{{ url_for('landing') }}" class="btn-main" style="text-decoration: none; background: #fff; color: #475569; border: 1px solid #e2e8f0;"><i class="fas fa-home"></i> Home</a>
+            </div>
+        </div>
+
+        {% if reports %}
+        <div class="report-grid">
+            {% for r in reports %}
+            <div class="report-card">
+                <img src="{{ url_for('static', filename='uploads/' + r.image_path) }}" class="report-img">
+                <div class="card-content">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <h3 style="margin: 0; font-weight: 800; color: #1e293b;">{{ r.issue_type }}</h3>
+                        <span class="status-pill status-{{ r.status }}">{{ r.status }}</span>
+                    </div>
+                    
+                    <div class="ai-tag">
+                        <i class="fas fa-robot"></i> AI Assessment: {{ r.ai_description }}
+                    </div>
+
+                    <p style="font-size: 0.85rem; color: #64748b; margin: 15px 0; line-height: 1.5;">
+                        <i class="fas fa-map-marker-alt" style="color: #ef4444;"></i> {{ r.address }}
+                    </p>
+
+                    <hr style="border: 0; border-top: 1px solid #f1f5f9; margin-bottom: 15px;">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
+                        <span style="color: #94a3b8;"><i class="far fa-calendar-alt"></i> {{ r.timestamp }}</span>
+                        {% if r.status == 'Resolved' %}
+                            <span style="color: #16a34a; font-weight: 800;">+50 Points Earned</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 100px 0;">
+            <i class="fas fa-folder-open" style="font-size: 4rem; color: #e2e8f0;"></i>
+            <h2 style="color: #94a3b8; margin-top: 20px;">You haven't reported any issues yet.</h2>
+            <a href="{{ url_for('index') }}" style="color: #2563eb; font-weight: 700; text-decoration: none;">Submit your first report now <i class="fas fa-arrow-right"></i></a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

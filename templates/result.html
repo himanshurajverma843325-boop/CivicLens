@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Success | CivicLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #f8fafc; font-family: 'Plus Jakarta Sans'; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); text-align: center; max-width: 450px; }
+        .address-box { background: #f1f5f9; padding: 15px; border-radius: 12px; margin: 20px 0; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <i class="fas fa-check-circle" style="font-size: 4rem; color: #10b981;"></i>
+        <h1 style="font-weight:800;">Report Received</h1>
+        <p style="color:#64748b;">Issue: <b style="color:#2563eb;">{{ issue }}</b></p>
+        
+        <div class="address-box">
+            <small style="font-weight:800; color:#94a3b8; text-transform:uppercase;">Reported Location:</small>
+            <p style="margin: 5px 0 0 0; font-weight:600; color:#1e293b; font-size: 0.95rem;">
+                <i class="fas fa-location-dot" style="color:#ef4444;"></i> {{ address }}
+            </p>
+        </div>
+
+        <a href="https://www.google.com/maps?q={{ lat }},{{ lon }}" target="_blank" style="color:#2563eb; text-decoration:none; font-weight:700; font-size:0.9rem;">View on Google Maps</a>
+        <br><br>
+        <a href="/" style="background:#2563eb; color:white; padding:15px 30px; border-radius:12px; text-decoration:none; display:inline-block; font-weight:700;">Back to Home</a>
+    </div>
+</body>
+</html>

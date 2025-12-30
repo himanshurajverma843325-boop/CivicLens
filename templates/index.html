@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Issue | CivicLens AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); width: 100%; max-width: 500px; text-align: center; }
+        
+        /* UI locked until native browser permission is granted */
+        .upload-zone { 
+            border: 2px dashed #cbd5e1; padding: 40px; border-radius: 20px; 
+            cursor: pointer; transition: 0.3s; background: #f8fafc; margin: 25px 0;
+            opacity: 0.4; pointer-events: none; 
+        }
+        
+        .btn { 
+            width: 100%; padding: 15px; background: #2563eb; color: white; 
+            border: none; border-radius: 12px; cursor: pointer; font-weight: 800; 
+            font-size: 1rem; transition: 0.3s; opacity: 0.5; pointer-events: none;
+        }
+        .btn.active { opacity: 1; pointer-events: auto; }
+
+        .manual-box { background: #fff; padding: 25px; border-radius: 20px; border: 2px solid #2563eb; margin-top: 25px; text-align: left; }
+        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; margin-bottom: 15px; box-sizing: border-box; }
+        
+        #loader-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+    </style>
+</head>
+<body>
+
+    <div id="loader-overlay">
+        <i class="fas fa-circle-notch fa-spin fa-3x" style="color: #2563eb;"></i>
+        <h2 style="margin-top: 20px; font-weight: 800;">AI Analysis in Progress</h2>
+    </div>
+
+    <div class="card">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="background: #fee2e2; color: #ef4444; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-weight: 700;">
+                    <i class="fas fa-robot"></i> {{ messages[0] }}
+                </div>
+                {% if 'AI Alert' in messages[0] %}
+                <div class="manual-box">
+                    <h3 style="margin-top: 0;">Manual Submission</h3>
+                    <form action="/manual_upload" method="POST">
+                        <input type="hidden" name="lat" id="m_lat" value="{{ session['last_lat'] }}">
+                        <input type="hidden" name="lon" id="m_lon" value="{{ session['last_lon'] }}">
+                        <input type="hidden" name="address" id="m_address" value="{{ session['last_addr'] }}">
+                        <input type="hidden" name="temp_filename" value="{{ session['last_img'] }}">
+                        
+                        <label style="font-size: 0.8rem; font-weight: 800;">Select Issue Type:</label>
+                        <select name="issue_type" class="input-field">
+                            <option value="Garbage Pile">Garbage Pile</option>
+                            <option value="Pothole">Pothole / Road Damage</option>
+                            <option value="Streetlight">Broken Streetlight</option>
+                            <option value="Other">Other Issue</option>
+                        </select>
+                        <textarea name="user_desc" class="input-field" placeholder="Describe the problem..." required></textarea>
+                        <button type="submit" class="btn active" style="background: #0f172a;">Submit Manual Report</button>
+                    </form>
+                </div>
+                {% endif %}
+            {% endif %}
+        {% endwith %}
+
+        <h1 style="margin: 0; font-weight: 800; color: #0f172a;">New Report</h1>
+        <p id="locStatus" style="font-weight: 700; font-size: 0.9rem; color: #f59e0b; margin-bottom: 15px;">
+            <i class="fas fa-spinner fa-spin"></i> Waiting for Browser Location Popup...
+        </p>
+
+        <form action="/upload" method="POST" enctype="multipart/form-data" id="reportForm">
+            <input type="hidden" name="lat" id="lat">
+            <input type="hidden" name="lon" id="lon">
+            <input type="hidden" name="address" id="address">
+            
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-camera-retro fa-3x" style="color: #94a3b8;"></i>
+                <p id="fileName" style="margin-top: 15px; font-weight: 700; color: #475569;">Allow Location Access to Unlock</p>
+                <input type="file" name="file" id="fileInput" hidden required accept="image/*" onchange="updateFileInfo(this)">
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn">Location Permission Required</button>
+        </form>
+        
+        <a href="{{ url_for('landing') }}" style="display: inline-block; margin-top: 20px; color: #64748b; text-decoration: none; font-weight: 700;">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </div>
+
+    <script>
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadZone = document.getElementById('uploadZone');
+        const status = document.getElementById('locStatus');
+
+        // Ye function browser ka native 3-option popup trigger karega
+        function triggerNativeLocation() {
+            if (navigator.geolocation) {
+                // High accuracy and timeout ensure native dialog appears immediately
+                navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            } else {
+                status.innerText = "Geolocation not supported.";
+            }
+        }
+
+        function onSuccess(pos) {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            
+            // Fill hidden fields for both forms
+            document.getElementById('lat').value = lat;
+            document.getElementById('lon').value = lon;
+            if(document.getElementById('m_lat')){
+                document.getElementById('m_lat').value = lat;
+                document.getElementById('m_lon').value = lon;
+            }
+            
+            // Fetch human-readable address
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+            .then(r => r.json()).then(d => {
+                const addr = d.display_name || "Location Verified";
+                document.getElementById('address').value = addr;
+                if(document.getElementById('m_address')) document.getElementById('m_address').value = addr;
+                
+                status.innerHTML = "✅ Location Accessed Successfully";
+                status.style.color = "#10b981";
+                
+                // Unlock UI elements
+                uploadZone.style.opacity = "1";
+                uploadZone.style.pointerEvents = "auto";
+                document.getElementById('fileName').innerText = "Tap to Select Photo";
+                submitBtn.classList.add('active');
+                submitBtn.innerText = "Analyze & Submit";
+            });
+        }
+
+        function onError(err) {
+            // Detailed error handling if user clicks "Never allow"
+            status.innerHTML = "⚠️ Permission Denied. Please enable location in browser settings.";
+            status.style.color = "#ef4444";
+            submitBtn.classList.remove('active');
+        }
+
+        // Trigger native popup as soon as the page loads
+        window.onload = triggerNativeLocation;
+
+        function updateFileInfo(input) {
+            if (input.files.length > 0) {
+                document.getElementById('fileName').innerText = "Selected: " + input.files[0].name;
+            }
+        }
+
+        document.getElementById('reportForm').onsubmit = function() {
+            document.getElementById('loader-overlay').style.display = 'flex';
+        };
+    </script>
+</body>
+</html>

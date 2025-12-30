@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login | CivicLens</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="background:#f1f5f9; display:flex; justify-content:center; align-items:center; height:100vh; font-family: 'Plus Jakarta Sans', sans-serif;">
+    <div style="background:white; padding:40px; border-radius:20px; width:380px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
+        <h2 style="text-align:center;">{{ 'Authority' if auth_mode else 'Citizen' }} Login</h2>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}{% for m in messages %}
+            <div style="color:#b91c1c; background:#fef2f2; padding:12px; border-radius:8px; font-size:0.85rem; border:1px solid #fecaca; margin-bottom:15px; text-align:center;">
+                {{ m }}
+            </div>
+          {% endfor %}{% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <input type="email" name="email" placeholder="Email" required style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ddd; box-sizing:border-box;">
+            <input type="password" name="password" placeholder="Password" required style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #ddd; box-sizing:border-box;">
+            <button type="submit" class="btn-main" style="width:100%; border:none; cursor:pointer;">Sign In</button>
+        </form>
+        
+        <div style="text-align:center; margin-top:20px;">
+            <a href="/forgot_password" style="font-size:0.85rem; color:#2563eb; font-weight:600; text-decoration:none;">Forgot Password?</a>
+            {% if not auth_mode %}
+            <p style="font-size:0.9rem; margin-top:15px;">New to CivicLens? <a href="/signup" style="color:#2563eb; font-weight:700; text-decoration:none;">Create Account</a></p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

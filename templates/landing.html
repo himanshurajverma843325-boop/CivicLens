@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CivicLens | Smart City</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .nav-avatar { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #2563eb; object-fit: cover; }
+        .profile-nav { display: flex; align-items: center; gap: 12px; }
+        .gradient-text { 
+            background: linear-gradient(90deg, #2563eb, #7c3aed); 
+            -webkit-background-clip: text; 
+            background-clip: text;
+            -webkit-text-fill-color: transparent; 
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-flex">
+            <div class="logo"><i class="fas fa-city"></i> CIVIC<span>LENS</span></div>
+            <ul class="nav-links">
+                <li><a href="#how-it-works">Process</a></li>
+                {% if session.get('logged_in') %}
+                    {% if session.get('role') == 'citizen' %}
+                        <li><a href="{{ url_for('user_dashboard') }}">My Reports</a></li>
+                        <li class="profile-nav">
+                            <a href="{{ url_for('edit_profile') }}">
+                                <img src="{{ url_for('static', filename='profiles/' + user.profile_pic) if user else url_for('static', filename='profiles/default_user.png') }}" class="nav-avatar">
+                            </a>
+                            <span style="font-weight:700;">{{ session['user_name'] }}</span>
+                            <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i></a>
+                        </li>
+                    {% else %}
+                        <li><a href="{{ url_for('admin_dashboard') }}">Admin Panel</a></li>
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                    {% endif %}
+                {% else %}
+                    <li><a href="{{ url_for('auth_login') }}">Authority</a></li>
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('signup') }}" class="btn-cta">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <header class="hero container" style="display:flex; align-items:center; padding: 60px 0;">
+        <div style="flex:1.2;">
+            <h1 style="font-size:3.5rem; font-weight:800;">Smarter Cities, <br><span class="gradient-text">Cleaner Streets.</span></h1>
+            <p style="color:#64748b; margin:20px 0 35px 0;">Report civic issues instantly. AI detects and alerts the authorities with precision.</p>
+            {% if session.get('logged_in') %}
+                <a href="{{ url_for('index') }}" class="btn-main" style="text-decoration:none;">Report an Issue</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn-main" style="text-decoration:none;">Login to Report</a>
+            {% endif %}
+        </div>
+        <div style="flex:1;"><img src="{{ url_for('static', filename='hero-city.jpg') }}" style="width:100%; border-radius:30px;"></div>
+    </header>
+
+    <section id="how-it-works" style="padding:100px 0; text-align:center;">
+        <h2 style="font-size:2.5rem; font-weight:800;">How It Works</h2>
+        <div style="display:flex; gap:30px; margin-top:50px;">
+            <div style="flex:1; padding:30px; background:#f8fafc; border-radius:24px;">
+                <i class="fas fa-camera-retro" style="font-size:2rem; color:#2563eb;"></i>
+                <h3>1. Snap & Upload</h3>
+                <p>Take a photo. GPS is captured automatically.</p>
+            </div>
+            <div style="flex:1; padding:30px; background:#f8fafc; border-radius:24px;">
+                <i class="fas fa-microchip" style="font-size:2rem; color:#10b981;"></i>
+                <h3>2. AI Detection</h3>
+                <p>AI identifies the issue and department.</p>
+            </div>
+            <div style="flex:1; padding:30px; background:#f8fafc; border-radius:24px;">
+                <i class="fas fa-tools" style="font-size:2rem; color:#f59e0b;"></i>
+                <h3>3. Action</h3>
+                <p>Authorities fix and update status.</p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

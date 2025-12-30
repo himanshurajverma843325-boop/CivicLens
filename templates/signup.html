@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up | CivicLens</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body style="background:#f1f5f9; display:flex; justify-content:center; align-items:center; height:100vh; font-family: 'Plus Jakarta Sans', sans-serif;">
+    <div style="background:white; padding:40px; border-radius:20px; width:380px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
+        <h2 style="text-align:center; margin-bottom:10px;">Create Account</h2>
+        <p style="text-align:center; color:#64748b; font-size:0.9rem; margin-bottom:20px;">Join us to make your city better.</p>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}{% for m in messages %}
+            <div style="color:#b91c1c; background:#fef2f2; padding:12px; border-radius:8px; font-size:0.85rem; border:1px solid #fecaca; margin-bottom:15px;">
+                <i class="fas fa-exclamation-circle"></i> {{ m }}
+            </div>
+          {% endfor %}{% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <input type="text" name="name" placeholder="Full Name" required style="width:100%; padding:12px; margin:8px 0; border-radius:10px; border:1px solid #ddd; box-sizing:border-box;">
+            <input type="email" name="email" placeholder="Email Address" required style="width:100%; padding:12px; margin:8px 0; border-radius:10px; border:1px solid #ddd; box-sizing:border-box;">
+            <input type="password" name="password" placeholder="Strong Password" required style="width:100%; padding:12px; margin:8px 0; border-radius:10px; border:1px solid #ddd; box-sizing:border-box;">
+            <p style="font-size:0.75rem; color:#64748b; margin-top:5px; line-height:1.4;">
+                <i class="fas fa-info-circle"></i> Password must be 8+ characters, include at least one Uppercase, one Number, and one Symbol.
+            </p>
+            <button type="submit" class="btn-main" style="width:100%; border:none; margin-top:15px; cursor:pointer;">Sign Up</button>
+        </form>
+        <p style="text-align:center; margin-top:20px; font-size:0.9rem;">Already have an account? <a href="/login" style="color:#2563eb; font-weight:700; text-decoration:none;">Login</a></p>
+    </div>
+</body>
+</html>
